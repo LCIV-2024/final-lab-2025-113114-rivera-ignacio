@@ -8,12 +8,17 @@ services:
       MYSQL_ROOT_PASSWORD: root
       MYSQL_DATABASE: demobase
     ports:
-      - "3307:3306"
+      - "3306:3306"
     networks:
         - demobase-network
     volumes:
-      - mysql-data:/var/lib/mysql
-      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
 
   app:
     build: .
@@ -31,7 +36,8 @@ services:
       - demobase-network
 
 volumes:
-  mysql-data:
+  mysql_data:
+    driver: local
 
 networks:
     demobase-network:
